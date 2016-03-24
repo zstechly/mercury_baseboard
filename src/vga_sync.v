@@ -1,4 +1,4 @@
-`default_netlist none
+//`default_netlist none
 // goal is for screen to be updated at 60Hz
 // 640x480=307200 pixels.  
 // app clock should be 25MHz
@@ -11,7 +11,7 @@ module vga_sync
    output  wire          hsync,
    output  wire [02:00]  red,
    output  wire [02:00]  green,
-   output  wire [01:00]  blue,
+   output  wire [01:00]  blue
 );
 
 // internal signals
