@@ -3,8 +3,6 @@ module mercury_top
 (
  input  wire         EXT_CLK,
  input  wire         CLK, 
- input  wire         PS2_DATA,
- input  wire         PS2_CLK,
 
  // buttons
  input  wire         USR_BTN,
