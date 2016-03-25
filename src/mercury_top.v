@@ -43,7 +43,7 @@ module mercury_top
  // 7 segment display
  // Output 0 to AN3 to control segmengs A-G, dot on 
  // the left most character.
- // AN's are active low, A_TO_G, DOT, active high
+ // AN's are active low, A_TO_G, DOT, active low
  output wire [03:00] AN,
  output wire [06:00] A_TO_G,
  output wire         DOT,
@@ -80,6 +80,7 @@ wire          DOTS_out;
 wire [03:00]  AN_out;     
 
 // Xilinx DCM
+// should be active high reset
 assign pll_reset = SW[0];
 
 mercury_dcm merc_dcm
@@ -92,9 +93,11 @@ mercury_dcm merc_dcm
   .CLK2X_OUT           (app_clk100), 
   .LOCKED_OUT          (pll_locked)
 );
-assign app_arst100_n = ~pll_locked;
-assign app_arst50_n = ~pll_locked;
-assign app_arst25_n = ~pll_locked;
+
+// hold modules in reset until pll is locked
+assign app_arst100_n = pll_locked;
+assign app_arst50_n  = pll_locked;
+assign app_arst25_n  = pll_locked;
 
 // lets throw a VGA thing into this
 vga_sync vga_module
@@ -109,11 +112,11 @@ vga_sync vga_module
 );
 
 // 8 segment display module
-assign A_TO_G0_in = 7'b0110000; //1
-assign A_TO_G1_in = 7'b1101101; //2 
-assign A_TO_G2_in = 7'b1111001; //3 
-assign A_TO_G3_in = 7'b0110011; //4 
-
+assign A_TO_G0_in = 7'b1001111; //1
+assign A_TO_G1_in = 7'b0010010; //2 
+assign A_TO_G2_in = 7'b0000110; //3 
+assign A_TO_G3_in = 7'b1001100; //4 
+assign DOTS_in    = 4'b1010; // off on off on
 mercury_8seg eight_seg
 (
      .app_clk         (   app_clk50),

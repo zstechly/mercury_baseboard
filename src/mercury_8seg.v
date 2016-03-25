@@ -100,8 +100,8 @@ always @(posedge app_clk or negedge app_arst_n) begin
       endcase   
     end else begin
         A_TO_G_r   <= 'b0;
-        an_r       <= 4'b1111;
-        dots_out_r <= 1'b0;
+        an_r       <= 4'b1111; // set all off
+        dots_out_r <= 1'b1;
     end  
    end
 end
