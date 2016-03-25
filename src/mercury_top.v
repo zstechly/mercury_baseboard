@@ -133,8 +133,8 @@ mercury_8seg eight_seg
 
 // output assignments
 assign RED    = red_out;
-assign GREEN  = green_out;
-assign BLUE   = blue_out;
+assign GRN    = green_out;
+assign BLU    = blue_out;
 assign HSYNC  = hsync_out;
 assign VSYNC  = vsync_out;
 assign AN     = AN_out;
