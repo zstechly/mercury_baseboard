@@ -1,12 +1,34 @@
-//`default_netlist none
+/*
+MIT License
+
+Copyright (c) [2016] [Zach Stechly]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 module mercury_top
 (
  input  wire         EXT_CLK,
  input  wire         CLK, 
 
- // buttons
- input  wire         USR_BTN,
- input  wire [03:00] BTN,
+ // buttons, logic low when pressed
+// input  wire         USR_BTN,
+// input  wire [03:00] BTN,
 
  // VGA stuff
  output wire [02:00] RED,
@@ -15,10 +37,13 @@ module mercury_top
  output wire         HSYNC,
  output wire         VSYNC,
 
- // switches
+ // switches, logic high when in the up position, logic low when in the low position
  input  wire [07:00] SW,
 
  // 7 segment display
+ // Output 0 to AN3 to control segmengs A-G, dot on 
+ // the left most character.
+ // AN's are active low, A_TO_G, DOT, active high
  output wire [03:00] AN,
  output wire [06:00] A_TO_G,
  output wire         DOT,
@@ -30,6 +55,7 @@ module mercury_top
 
 // hang reset off of pll_locked and button pushes
 wire  pll_reset;
+
 // DCM outputs
 wire  app_clk100, app_arst100_n;
 wire  app_clk25,  app_arst25_n;
@@ -42,6 +68,16 @@ wire          hsync_out;
 wire [02:00]  red_out;
 wire [02:00]  green_out;
 wire [01:00]  blue_out;
+
+// Eight Segment display logic
+wire [06:00]  A_TO_G0_in;
+wire [06:00]  A_TO_G1_in;
+wire [06:00]  A_TO_G2_in;
+wire [06:00]  A_TO_G3_in;
+wire [03:00]  DOTS_in;
+wire [06:00]  A_TO_G_out;
+wire          DOTS_out;
+wire [03:00]  AN_out;     
 
 // Xilinx DCM
 assign pll_reset = SW[0];
@@ -72,12 +108,37 @@ vga_sync vga_module
    .blue        (blue_out )
 );
 
+// 8 segment display module
+assign A_TO_G0_in = 7'b0110000; //1
+assign A_TO_G1_in = 7'b1101101; //2 
+assign A_TO_G2_in = 7'b1111001; //3 
+assign A_TO_G3_in = 7'b0110011; //4 
+
+mercury_8seg eight_seg
+(
+     .app_clk         (   app_clk50),
+     .app_arst_n      (app_arst50_n),
+     
+     .enable          (       SW[1]), 
+     .A_TO_G0_in      (  A_TO_G0_in),
+     .A_TO_G1_in      (  A_TO_G1_in),
+     .A_TO_G2_in      (  A_TO_G2_in),
+     .A_TO_G3_in      (  A_TO_G3_in),
+     .DOTS_in         (  DOTS_in   ),
+     
+     .A_TO_G_out      ( A_TO_G_out),
+     .DOTS_out        ( DOTS_out   ),
+     .AN_out          ( AN_out     )
+);
 
 // output assignments
-assign RED   = red_out;
-assign GREEN = green_out;
-assign BLUE  = blue_out;
-assign HSYNC = hsync_out;
-assign VSYNC = vsync_out;
+assign RED    = red_out;
+assign GREEN  = green_out;
+assign BLUE   = blue_out;
+assign HSYNC  = hsync_out;
+assign VSYNC  = vsync_out;
+assign AN     = AN_out;
+assign A_TO_G = A_TO_G_out;
+assign DOT    = DOTS_out;
 
 endmodule
