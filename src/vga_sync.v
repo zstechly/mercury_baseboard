@@ -1,8 +1,26 @@
-//`default_netlist none
-// goal is for screen to be updated at 60Hz
-// 640x480=307200 pixels.  
-// app clock should be 25MHz
-// actually it seems like 794*528
+/*
+MIT License
+
+Copyright (c) [2016] [Zach Stechly]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 module vga_sync
 (
    input   wire          app_clk,
@@ -32,10 +50,11 @@ always @(posedge app_clk or negedge app_arst_n) begin
      row_cnt_r <= 'b0;
      col_cnt_r <= 'b0;
   end else begin
-     col_cnt_r <= (col_cnt_r == 10'd793) ? 0 : col_cnt_r + 1;
-     row_cnt_r <= (row_cnt_r == 9'd652)  ? 0 : row_cnt_r + {8'd0,~|col_cnt_r};
-     hsync_r   <= (col_cnt_r < 10'd639);
-     vsync_r   <= (row_cnt_r < 9'd479);
+     col_cnt_r <= (col_cnt_r == 10'd798) ? 0 : col_cnt_r + 1;
+     row_cnt_r <= (row_cnt_r == 9'd519)  ? 0 : row_cnt_r + {8'd0,~|col_cnt_r};
+     // active low
+     hsync_r   <= ~(col_cnt_r < 10'd96);// 96
+     vsync_r   <= ~(row_cnt_r < 9'd2); // 2
      red_r     <= {1'b1,1'b0,1'b0};
      green_r   <= {row_cnt_r[0],row_cnt_r[0],row_cnt_r[0]};
      blue_r    <= {col_cnt_r[0],col_cnt_r[0]};
