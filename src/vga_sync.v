@@ -35,8 +35,7 @@ module vga_sync
 // internal signals
 reg  [02:00]  red_r, green_r;
 reg  [01:00]  blue_r;
-reg           vsync_r, hsync_r;
-reg  [08:00]  row_cnt_r;
+reg  [09:00]  row_cnt_r;
 reg  [09:00]  col_cnt_r;
 
 // make random colors
@@ -45,15 +44,13 @@ always @(posedge app_clk or negedge app_arst_n) begin
      red_r     <= 'b0; 
      green_r   <= 'b0;
      blue_r    <= 'b0;
-     vsync_r   <= 1'b0;
-     hsync_r   <= 1'b0;
      row_cnt_r <= 'b0;
      col_cnt_r <= 'b0;
   end else begin
 
-     if (col_cnt_r == 10'd798) begin
+     if (col_cnt_r == 10'd799) begin
          col_cnt_r   <= 'b0;
-         if (row_cnt_r == 9'd519) begin
+         if (row_cnt_r == 10'd520) begin
             row_cnt_r    <= 'b0;
          end else begin
             row_cnt_r    <= row_cnt_r + 1;
@@ -62,9 +59,6 @@ always @(posedge app_clk or negedge app_arst_n) begin
          col_cnt_r   <= col_cnt_r + 1;
      end
 
-     // active low
-     hsync_r   <= ~(col_cnt_r < 10'd95);// 96
-     vsync_r   <= ~(row_cnt_r < 9'd1); // 2
      red_r     <= {1'b1,1'b0,1'b0};
      green_r   <= {row_cnt_r[0],row_cnt_r[0],row_cnt_r[0]};
      blue_r    <= {col_cnt_r[0],col_cnt_r[0]};
@@ -72,8 +66,8 @@ always @(posedge app_clk or negedge app_arst_n) begin
 end
 
 // output assignments
-assign vsync   = vsync_r;
-assign hsync   = hsync_r;
+assign vsync   = ~(row_cnt_r < 10'd2);;
+assign hsync   = ~(col_cnt_r < 10'd96);
 assign red     = red_r;
 assign green   = green_r;
 assign blue    = blue_r;
