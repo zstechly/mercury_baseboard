@@ -50,16 +50,28 @@ always @(posedge app_clk or negedge app_arst_n) begin
      row_cnt_r <= 'b0;
      col_cnt_r <= 'b0;
   end else begin
-     col_cnt_r <= (col_cnt_r == 10'd798) ? 0 : col_cnt_r + 1;
-     row_cnt_r <= (row_cnt_r == 9'd519)  ? 0 : row_cnt_r + {8'd0,~|col_cnt_r};
+
+     if (col_cnt_r == 10'd798) begin
+         col_cnt_r   <= 'b0;
+         if (row_cnt_r == 9'd519) begin
+            row_cnt_r    <= 'b0;
+         end else begin
+            row_cnt_r    <= row_cnt_r + 1;
+         end
+     end else begin
+         col_cnt_r   <= col_cnt_r + 1;
+     end
+
      // active low
-     hsync_r   <= ~(col_cnt_r < 10'd96);// 96
-     vsync_r   <= ~(row_cnt_r < 9'd2); // 2
+     hsync_r   <= ~(col_cnt_r < 10'd95);// 96
+     vsync_r   <= ~(row_cnt_r < 9'd1); // 2
      red_r     <= {1'b1,1'b0,1'b0};
      green_r   <= {row_cnt_r[0],row_cnt_r[0],row_cnt_r[0]};
      blue_r    <= {col_cnt_r[0],col_cnt_r[0]};
   end
 end
+
+// output assignments
 assign vsync   = vsync_r;
 assign hsync   = hsync_r;
 assign red     = red_r;
