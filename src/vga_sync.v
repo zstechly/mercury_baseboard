@@ -66,7 +66,7 @@ always @(posedge app_clk or negedge app_arst_n) begin
 end
 
 // output assignments
-assign vsync   = ~(row_cnt_r < 10'd2);;
+assign vsync   = ~(row_cnt_r < 10'd2);
 assign hsync   = ~(col_cnt_r < 10'd96);
 assign red     = red_r;
 assign green   = green_r;
