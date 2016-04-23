@@ -68,7 +68,7 @@ wire          hsync_out;
 wire [02:00]  red_out;
 wire [02:00]  green_out;
 wire [01:00]  blue_out;
-
+reg           red_in_r;
 // Eight Segment display logic
 wire [06:00]  A_TO_G0_in;
 wire [06:00]  A_TO_G1_in;
@@ -78,6 +78,10 @@ wire [03:00]  DOTS_in;
 wire [06:00]  A_TO_G_out;
 wire          DOTS_out;
 wire [03:00]  AN_out;     
+
+// ps/2 data
+wire         ps2_data_ena;
+wire [07:00] ps2_data_out;
 
 // Xilinx DCM
 // should be active high reset
@@ -100,15 +104,20 @@ assign app_arst50_n  = pll_locked;
 assign app_arst25_n  = pll_locked;
 
 // lets throw a VGA thing into this
+always @(posedge app_clk25) begin
+  red_in_r    <= (ps2_data_out == 8'h15);
+end
+
 vga_sync vga_module
 (
-   .app_clk     (app_clk25),
+   .app_clk     (   app_clk25),
    .app_arst_n  (app_arst25_n),
-   .vsync       (vsync_out),
-   .hsync       (hsync_out),
-   .red         (red_out  ),
-   .green       (green_out),
-   .blue        (blue_out )
+   .red_in      (    red_in_r),
+   .vsync       (   vsync_out),
+   .hsync       (   hsync_out),
+   .red         (   red_out  ),
+   .green       (   green_out),
+   .blue        (   blue_out )
 );
 
 // 8 segment display module
@@ -132,6 +141,17 @@ mercury_8seg eight_seg
      .A_TO_G_out      ( A_TO_G_out),
      .DOTS_out        ( DOTS_out   ),
      .AN_out          ( AN_out     )
+);
+
+
+// ps/2 port
+ps2_controller ps2_cont(
+   .app_clk           (app_clk25   ),
+   .app_arst_n        (app_arst25_n),
+   .ps2_clk           (ps2_clk     ),
+   .ps2_data          (ps2_data    ),
+   .data_ena          (ps2_data_ena),
+   .data_out          (ps2_data_out)
 );
 
 // output assignments

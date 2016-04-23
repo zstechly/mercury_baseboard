@@ -25,6 +25,7 @@ module vga_sync
 (
    input   wire          app_clk,
    input   wire          app_arst_n,
+   input   wire          red_in,
    output  wire          vsync,
    output  wire          hsync,
    output  wire [02:00]  red,
@@ -59,7 +60,7 @@ always @(posedge app_clk or negedge app_arst_n) begin
          col_cnt_r   <= col_cnt_r + 1;
      end
 
-     red_r     <= {1'b1,1'b0,1'b0};
+     red_r     <= {red_in,red_in,red_in};
      green_r   <= {row_cnt_r[0],row_cnt_r[0],row_cnt_r[0]};
      blue_r    <= {col_cnt_r[0],col_cnt_r[0]};
   end
