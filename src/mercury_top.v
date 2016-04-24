@@ -148,8 +148,8 @@ mercury_8seg eight_seg
 ps2_controller ps2_cont(
    .app_clk           (app_clk25   ),
    .app_arst_n        (app_arst25_n),
-   .ps2_clk           (ps2_clk     ),
-   .ps2_data          (ps2_data    ),
+   .ps2_clk           (PS2_CLK     ),
+   .ps2_data          (PS2_DATA    ),
    .data_ena          (ps2_data_ena),
    .data_out          (ps2_data_out)
 );

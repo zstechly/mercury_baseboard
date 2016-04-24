@@ -25,7 +25,7 @@ module ps2_controller(
    input   wire         app_clk,
    input   wire         app_arst_n,
    input   wire         ps2_clk,
-   input   wire         ps2_data
+   input   wire         ps2_data,
    output  wire         data_ena,
    output  wire [07:00] data_out
 );
@@ -45,7 +45,7 @@ always @(posedge app_clk or negedge app_arst_n) begin
    end else begin
       ps2_clk_dly_r           <= ps2_clk;
       ps2_clk_dly2_r          <= ps2_clk_dly_r;
-      ps2_clk_fallingedge_r   <= ~ps2_clk_dly_r & ps2_clk_dly2_r;
+      ps2_clk_falling_edge_r   <= ~ps2_clk_dly_r & ps2_clk_dly2_r;
    end 
 end
 
@@ -59,13 +59,13 @@ always @(posedge app_clk or negedge app_arst_n) begin
       data_out_r   <= 'b0;
       data_ena_r   <= 'b0;
    end else begin
-      if (ps2_clk_fallingedge_r) begin
-          data_in_r[09:00] <= {ps2_data,data_in_r[10:0]};
+      if (ps2_clk_falling_edge_r) begin
+          data_in_r[10:00] <= {ps2_data,data_in_r[10:1]};
           data_cnt_r       <= data_cnt_r + 1;
       end else begin
           if (data_cnt_r   == 4'd11) begin
              data_cnt_r    <= 'b0;
-             data_out_r    <= data_cnt_r[8:1];
+             data_out_r    <= data_in_r[8:1];
              data_ena_r    <= 1'b0;
           end else begin
              data_cnt_r    <= data_cnt_r;
